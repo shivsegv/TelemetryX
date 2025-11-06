@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: telemetry
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      TELEMETRY_SERVER_POSTGRES_DSN: postgres://postgres:telemetry@postgres:5432/postgres?sslmode=disable
+    ports:
+      - "50051:50051"
+      - "8080:8080"
+    restart: unless-stopped
+
+  agent_a:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    depends_on:
+      server:
+        condition: service_started
+    environment:
+      TELEMETRY_AGENT_ID: agent-a
+      TELEMETRY_SERVER_NAME: localhost
+    restart: unless-stopped
+
+  agent_b:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    depends_on:
+      server:
+        condition: service_started
+    environment:
+      TELEMETRY_AGENT_ID: agent-b
+      TELEMETRY_SERVER_NAME: localhost
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    depends_on:
+      server:
+        condition: service_started
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

@@ -1,0 +1,10 @@
+# Build outputs
+bin/
+
+# Dependency / tooling caches
+*.log
+
+dist/
+
+# Local TLS artifacts (generated per developer)
+deploy/certs/dev/

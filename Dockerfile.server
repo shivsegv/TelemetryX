@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+
+FROM golang:1.24 AS build
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/server cmd/server/main.go
+
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /app
+COPY --from=build /out/server ./server
+COPY deploy/certs/dev ./certs
+
+ENV TELEMETRY_SERVER_TLS_CERT=/app/certs/server.pem \
+    TELEMETRY_SERVER_TLS_KEY=/app/certs/server-key.pem \
+    TELEMETRY_SERVER_POSTGRES_DSN=postgres://postgres:telemetry@postgres:5432/postgres?sslmode=disable \
+    TELEMETRY_SERVER_HTTP_ADDR=:8080 \
+    TELEMETRY_SERVER_GRPC_ADDR=:50051
+
+EXPOSE 50051 8080
+
+ENTRYPOINT ["/app/server"]

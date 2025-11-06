@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, rgba(124, 58, 237, 0.25), transparent 55%),
+    linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #020617 100%);
+  min-height: 100vh;
+}
+
+.glass {
+  backdrop-filter: blur(24px);
+  background: rgba(15, 23, 42, 0.68);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.card-outline {
+  border-image: linear-gradient(130deg, rgba(124, 58, 237, 0.8), rgba(8, 145, 178, 0.7)) 1;
+  border-width: 1px;
+  border-style: solid;
+}

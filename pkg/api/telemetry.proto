@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "pkg/api";
+
+import "google/protobuf/timestamp.proto";
+
+message Metric {
+  double cpu_usage = 1;
+  uint64 memory_usage = 2;
+  uint64 network_tx_bytes = 3;
+  uint64 network_rx_bytes = 4;
+  string agent_id = 5;
+  google.protobuf.Timestamp collected_at = 6;
+  double memory_percent = 7;
+  double load_avg_1 = 8;
+  double load_avg_5 = 9;
+  double load_avg_15 = 10;
+  uint64 disk_read_bytes = 11;
+  uint64 disk_write_bytes = 12;
+}
+
+service Telemetry {
+  rpc StreamMetrics(stream Metric) returns (stream Metric) {}
+}
